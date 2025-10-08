@@ -1,16 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 import type { Feature } from '../types';
 
-if (!process.env.API_KEY) {
-  // This is a placeholder for development. In a real environment,
-  // the key should be securely managed.
-  // console.warn("API_KEY environment variable not set. Using a placeholder.");
-  process.env.API_KEY = "YOUR_API_KEY_HERE"; 
-}
-
+// FIX: Initialize GoogleGenAI with API key from environment variables as per guidelines.
+// Do not use placeholders or default values.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-function buildPrompt(featureData: Omit<Feature, 'id' | 'status'>): string {
+function buildPrompt(featureData: Omit<Feature, 'id' | 'status' | 'enabled'>): string {
   const { name, description, packageDetails, checkpoints } = featureData;
 
   let prompt = `You are an AI assistant tasked with creating a detailed scoring prompt for evaluating customer service or sales interactions. Based on the following structured data, generate a single, comprehensive "Scoring Prompt". This prompt will be used by another AI to analyze and score a conversation transcript.
@@ -61,15 +56,11 @@ Synthesize all of the above information. Your output should be a single, detaile
 }
 
 
-export const generateScoringPrompt = async (featureData: Omit<Feature, 'id' | 'status'>): Promise<string> => {
-  if (process.env.API_KEY === "YOUR_API_KEY_HERE") {
-    console.warn("Using mock Gemini API response. Please provide a real API key.");
-    return new Promise(resolve => setTimeout(() => resolve(`This is a mock scoring prompt generated for "${featureData.name}". It is based on evaluating checkpoints such as ${featureData.checkpoints?.map(c => c.category).join(', ')}. The context is the sale of the "${featureData.name}" package. Please provide a real Google Gemini API key in geminiService.ts to get a real AI-generated response.`), 1000));
-  }
-  
+export const generateScoringPrompt = async (featureData: Omit<Feature, 'id' | 'status' | 'enabled'>): Promise<string> => {
   const prompt = buildPrompt(featureData);
   
   try {
+    // FIX: Removed mock API response logic. Direct call to Gemini API.
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,

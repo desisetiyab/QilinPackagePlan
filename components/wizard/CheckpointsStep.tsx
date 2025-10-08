@@ -32,7 +32,7 @@ const CheckpointsStep: React.FC<CheckpointsStepProps> = ({ checkpoints, dispatch
           ))}
         </div>
       ) : (
-        <div className={`text-center py-16 border-2 border-dashed ${generalCheckpointError ? 'border-red-500' : 'border-q-gray-700'} rounded-lg flex flex-col items-center justify-center transition-colors`}>
+        <div className={`text-center py-16 bg-q-gray-800 border ${generalCheckpointError ? 'border-red-500' : 'border-q-gray-700'} rounded-lg flex flex-col items-center justify-center transition-colors`}>
             <ScenariosIcon className="w-12 h-12 text-q-gray-600 mb-4" />
             <h3 className="text-lg font-medium text-q-gray-400">No Checkpoints Defined</h3>
             <p className="text-sm text-q-gray-500 mt-1 max-w-xs mx-auto">

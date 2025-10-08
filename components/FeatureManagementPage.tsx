@@ -61,7 +61,7 @@ const initialFeatures: Feature[] = [
     packageDetails: {
       targetMarket: 'All customer-facing roles',
       price: 100,
-      currency: 'USD',
+      currency: 'MYR',
       duration: 'per agent/month',
       benefits: 'Improved customer satisfaction.',
       sellingPoints: 'Develop deeper customer connections.',
@@ -76,8 +76,8 @@ const initialFeatures: Feature[] = [
     enabled: false,
     packageDetails: {
       targetMarket: 'Technical support teams',
-      price: 150,
-      currency: 'USD',
+      price: 15000,
+      currency: 'MYR',
       duration: 'per agent/month',
       benefits: 'Faster resolution times.',
       sellingPoints: 'Increase first-call resolution rates.',
@@ -126,7 +126,7 @@ const FeatureManagementPage: React.FC = () => {
     } else {
         setFeatures(prevFeatures => [...prevFeatures, featureData]);
     }
-    setView({ type: 'detail', feature: featureData });
+    setView({ type: 'list' });
   };
 
   const renderContent = () => {

@@ -72,16 +72,12 @@ const PackageDetailsStep: React.FC<PackageDetailsStepProps> = ({ details, dispat
             />
             <div className="flex flex-col">
                 <label htmlFor="currency" className="block text-sm font-medium text-q-gray-400 mb-1">Currency</label>
-                <select
-                    id="currency"
-                    value={details.packageDetails.currency}
-                    onChange={(e) => handlePackageDetailChange('currency', e.target.value)}
-                    className="bg-q-gray-700 border border-q-gray-600 text-white text-sm rounded-lg focus:ring-q-green focus:border-q-green block w-full p-2.5"
+                <div 
+                  id="currency"
+                  className="bg-q-gray-700 border border-q-gray-600 text-q-gray-400 text-sm rounded-lg block w-full p-2.5 h-[42px] flex items-center"
                 >
-                    <option>MYR</option>
-                    <option>SGD</option>
-                    <option>USD</option>
-                </select>
+                    MYR
+                </div>
             </div>
              <Input
                 label="Duration"

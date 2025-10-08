@@ -1,16 +1,3 @@
-// Fix: Add Step type for wizard navigation.
-export type Step = 1 | 2 | 3;
-
-export interface PackageDetails {
-  targetMarket: string;
-  price: number | '';
-  currency: 'MYR' | 'SGD' | 'USD' | string;
-  duration: string;
-  benefits: string;
-  sellingPoints: string;
-}
-
-// Fix: Add Criteria and Checkpoint types for evaluation criteria.
 export interface Criteria {
   veryGood: string;
   good: string;
@@ -24,18 +11,28 @@ export interface Checkpoint {
   criteria: Criteria;
 }
 
+export interface PackageDetails {
+  targetMarket: string;
+  price: number | ''; // Allow empty string for input state
+  currency: string;
+  duration: string;
+  benefits: string;
+  sellingPoints: string;
+}
+
 export interface Feature {
   id: string;
   name: string;
   description: string;
-  status: 'Draft' | 'Published';
+  status: 'Published' | 'Draft';
   enabled: boolean;
   packageDetails: PackageDetails;
-  // Fix: Add optional checkpoints and scoringPrompt to Feature type to support evaluation steps.
-  checkpoints?: Checkpoint[];
-  scoringPrompt?: string;
+  checkpoints: Checkpoint[];
 }
 
+export type Step = 1 | 2 | 3;
+
+// For form validation
 export interface ValidationErrors {
   name?: string;
   description?: string;
@@ -46,9 +43,8 @@ export interface ValidationErrors {
     benefits?: string;
     sellingPoints?: string;
   };
-  // Fix: Add validation fields for checkpoints and total weight.
   checkpoints?: {
-    [key: string]: {
+    [checkpointId: string]: {
       category?: string;
       veryGood?: string;
       good?: string;
@@ -56,5 +52,5 @@ export interface ValidationErrors {
       veryBad?: string;
     };
   };
-  checkpointsError?: string;
+  checkpointsError?: string; // For general error like "at least one checkpoint"
 }

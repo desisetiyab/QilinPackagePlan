@@ -1,158 +1,165 @@
-import React, { useState } from 'react';
-import type { Feature, ValidationErrors, Checkpoint } from '../types';
+import React, { useState, useEffect } from 'react';
+import type { Feature, ValidationErrors, Step } from '../types';
 import { useFeatureReducer } from '../hooks/useFeatureReducer';
+import StepIndicator from './wizard/StepIndicator';
 import PackageDetailsStep from './wizard/PackageDetailsStep';
 import CheckpointsStep from './wizard/CheckpointsStep';
+import ReviewStep from './wizard/ReviewStep';
 import Button from './ui/Button';
 
-interface CreateFeatureWizardProps {
+interface CreatePackagePlanFormProps {
   onCancel: () => void;
-  onSave: (feature: Feature) => void;
+  onSave: (featureData: Feature) => void;
   initialData?: Feature;
 }
 
-type Tab = 'details' | 'checkpoints';
-
-const CreateFeatureWizard: React.FC<CreateFeatureWizardProps> = ({ onCancel, onSave, initialData }) => {
+const CreatePackagePlanForm: React.FC<CreatePackagePlanFormProps> = ({ onCancel, onSave, initialData }) => {
+  const [currentStep, setCurrentStep] = useState<Step>(1);
   const [state, dispatch] = useFeatureReducer(initialData);
-  const [activeTab, setActiveTab] = useState<Tab>('details');
   const [errors, setErrors] = useState<ValidationErrors>({});
-  
-  const validateDetails = (): ValidationErrors => {
-    const newErrors: ValidationErrors = {};
-    
-    // Name and Description
-    if (!state.name.trim()) newErrors.name = 'Package name is required.';
-    else if (state.name.trim().length < 3 || state.name.trim().length > 50) newErrors.name = 'Must be between 3 and 50 characters.';
 
-    if (!state.description.trim()) newErrors.description = 'Description is required.';
-    else if (state.description.trim().length < 10 || state.description.trim().length > 500) newErrors.description = 'Must be between 10 and 500 characters.';
-    
-    // Package Details
-    const packageErrors: ValidationErrors['packageDetails'] = {};
-    if (!state.packageDetails.targetMarket.trim()) {
-      packageErrors.targetMarket = 'Target market is required.';
-    } else if (state.packageDetails.targetMarket.trim().length < 10 || state.packageDetails.targetMarket.trim().length > 200) {
-      packageErrors.targetMarket = 'Must be between 10 and 200 characters.';
+  useEffect(() => {
+    // When the user navigates to the Checkpoints step, automatically add the first
+    // checkpoint if none exist. This provides a more direct workflow instead of
+    // showing an empty state and requiring an extra click.
+    if (currentStep === 2 && (!state.checkpoints || state.checkpoints.length === 0)) {
+      dispatch({ type: 'ADD_CHECKPOINT' });
+    }
+  }, [currentStep, state.checkpoints, dispatch]);
+
+
+  const validateStep1 = (): boolean => {
+    const newErrors: ValidationErrors = {};
+    if (!state.name.trim()) newErrors.name = 'Package name is required.';
+    if (state.name.trim().length < 3 || state.name.trim().length > 50) {
+      newErrors.name = 'Must be between 3 and 50 characters.';
+    }
+    if (!state.description.trim()) newErrors.description = 'Package description is required.';
+    if (state.description.trim().length < 10 || state.description.trim().length > 500) {
+        newErrors.description = 'Must be between 10 and 500 characters.';
+    }
+
+
+    const pdErrors: ValidationErrors['packageDetails'] = {};
+    if (!state.packageDetails.targetMarket.trim()) pdErrors.targetMarket = 'Target market is required.';
+     if (state.packageDetails.targetMarket.trim().length < 10 || state.packageDetails.targetMarket.trim().length > 200) {
+        pdErrors.targetMarket = 'Must be between 10 and 200 characters.';
     }
 
     if (state.packageDetails.price === '' || isNaN(Number(state.packageDetails.price)) || Number(state.packageDetails.price) < 0) {
-      packageErrors.price = 'Price must be a valid non-negative number.';
+      pdErrors.price = 'A valid, non-negative price is required.';
+    }
+    if (!state.packageDetails.duration.trim()) pdErrors.duration = 'Duration is required.';
+     if (state.packageDetails.duration.trim().length < 3 || state.packageDetails.duration.trim().length > 50) {
+        pdErrors.duration = 'Must be between 3 and 50 characters.';
     }
 
-    if (!state.packageDetails.duration.trim()) {
-      packageErrors.duration = 'Duration is required.';
-    } else if (state.packageDetails.duration.trim().length < 3 || state.packageDetails.duration.trim().length > 50) {
-      packageErrors.duration = 'Must be between 3 and 50 characters.';
+    if (!state.packageDetails.benefits.trim()) pdErrors.benefits = 'Benefits are required.';
+     if (state.packageDetails.benefits.trim().length < 20 || state.packageDetails.benefits.trim().length > 1000) {
+        pdErrors.benefits = 'Must be between 20 and 1000 characters.';
     }
     
-    // Benefits
-    if (!state.packageDetails.benefits.trim()) {
-        packageErrors.benefits = 'Benefits are required.';
-    } else if (state.packageDetails.benefits.trim().length < 10 || state.packageDetails.benefits.trim().length > 1000) {
-        packageErrors.benefits = 'Must be between 10 and 1000 characters.';
+    if (!state.packageDetails.sellingPoints.trim()) pdErrors.sellingPoints = 'Selling points are required.';
+    if (state.packageDetails.sellingPoints.trim().length < 20 || state.packageDetails.sellingPoints.trim().length > 1000) {
+        pdErrors.sellingPoints = 'Must be between 20 and 1000 characters.';
+    }
+    
+    if (Object.keys(pdErrors).length > 0) {
+      newErrors.packageDetails = pdErrors;
     }
 
-    // Selling Points
-    if (!state.packageDetails.sellingPoints.trim()) {
-        packageErrors.sellingPoints = 'Key selling points are required.';
-    } else if (state.packageDetails.sellingPoints.trim().length < 10 || state.packageDetails.sellingPoints.trim().length > 1000) {
-        packageErrors.sellingPoints = 'Must be between 10 and 1000 characters.';
-    }
-
-
-    if (Object.keys(packageErrors).length > 0) {
-        newErrors.packageDetails = packageErrors;
-    }
-
-    return newErrors;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
-  
-  const validateCheckpoints = (): ValidationErrors => {
-    const newErrors: ValidationErrors = {};
-    const cpErrorsContainer: ValidationErrors['checkpoints'] = {};
-    let hasCpError = false;
 
-    if (!state.checkpoints || state.checkpoints.length === 0) {
-      newErrors.checkpointsError = 'At least one checkpoint is required.';
-      return newErrors;
+  const validateStep2 = (): boolean => {
+     if (!state.checkpoints || state.checkpoints.length === 0) {
+      setErrors({ checkpointsError: 'At least one checkpoint is required.'});
+      return false;
     }
 
-    state.checkpoints?.forEach((cp: Checkpoint) => {
-      const cpErrors: { [key: string]: string } = {};
-      if (!cp.category.trim()) cpErrors.category = 'Category name is required.';
-      else if (cp.category.trim().length < 5 || cp.category.trim().length > 100) cpErrors.category = 'Must be between 5 and 100 characters.';
-
-      if (!cp.criteria.veryGood.trim()) cpErrors.veryGood = 'Criteria is required.';
-      else if (cp.criteria.veryGood.trim().length < 20 || cp.criteria.veryGood.trim().length > 300) cpErrors.veryGood = 'Must be between 20 and 300 characters.';
-
-      if (!cp.criteria.good.trim()) cpErrors.good = 'Criteria is required.';
-      else if (cp.criteria.good.trim().length < 20 || cp.criteria.good.trim().length > 300) cpErrors.good = 'Must be between 20 and 300 characters.';
-
-      if (!cp.criteria.bad.trim()) cpErrors.bad = 'Criteria is required.';
-      else if (cp.criteria.bad.trim().length < 20 || cp.criteria.bad.trim().length > 300) cpErrors.bad = 'Must be between 20 and 300 characters.';
-
-      if (!cp.criteria.veryBad.trim()) cpErrors.veryBad = 'Criteria is required.';
-      else if (cp.criteria.veryBad.trim().length < 20 || cp.criteria.veryBad.trim().length > 300) cpErrors.veryBad = 'Must be between 20 and 300 characters.';
+    const newErrors: ValidationErrors = {};
+    const cpErrors: ValidationErrors['checkpoints'] = {};
+    let hasError = false;
+    state.checkpoints.forEach(cp => {
+      const singleCpErrors: { [key: string]: string } = {};
+      if (!cp.category.trim()) singleCpErrors.category = 'Category is required.';
+       if (cp.category.trim().length < 3 || cp.category.trim().length > 100) {
+        singleCpErrors.category = 'Must be between 3 and 100 characters.';
+      }
+      if (!cp.criteria.veryGood.trim()) singleCpErrors.veryGood = 'Criteria is required.';
+      if (cp.criteria.veryGood.trim().length < 10 || cp.criteria.veryGood.trim().length > 300) {
+        singleCpErrors.veryGood = 'Must be between 10 and 300 characters.';
+      }
+      if (!cp.criteria.good.trim()) singleCpErrors.good = 'Criteria is required.';
+      if (cp.criteria.good.trim().length < 10 || cp.criteria.good.trim().length > 300) {
+        singleCpErrors.good = 'Must be between 10 and 300 characters.';
+      }
+      if (!cp.criteria.bad.trim()) singleCpErrors.bad = 'Criteria is required.';
+      if (cp.criteria.bad.trim().length < 10 || cp.criteria.bad.trim().length > 300) {
+        singleCpErrors.bad = 'Must be between 10 and 300 characters.';
+      }
+      if (!cp.criteria.veryBad.trim()) singleCpErrors.veryBad = 'Criteria is required.';
+      if (cp.criteria.veryBad.trim().length < 10 || cp.criteria.veryBad.trim().length > 300) {
+        singleCpErrors.veryBad = 'Must be between 10 and 300 characters.';
+      }
       
-      if (Object.keys(cpErrors).length > 0) {
-        cpErrorsContainer[cp.id] = cpErrors;
-        hasCpError = true;
+      if (Object.keys(singleCpErrors).length > 0) {
+        cpErrors[cp.id] = singleCpErrors;
+        hasError = true;
       }
     });
 
-    if (hasCpError) {
-        newErrors.checkpoints = cpErrorsContainer;
+    if (hasError) {
+      newErrors.checkpoints = cpErrors;
     }
-    
-    return newErrors;
+
+    setErrors(newErrors);
+    return !hasError;
   };
 
 
+  const handleNext = () => {
+    let isValid = false;
+    if (currentStep === 1) {
+      isValid = validateStep1();
+    } else if (currentStep === 2) {
+      isValid = validateStep2();
+    } else {
+      isValid = true;
+    }
+
+    if (isValid) {
+      setCurrentStep(prev => (prev < 3 ? prev + 1 : prev) as Step);
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(prev => (prev > 1 ? prev - 1 : prev) as Step);
+  };
+  
   const handleSave = () => {
-    const detailsErrors = validateDetails();
-    const checkpointsErrors = validateCheckpoints();
-
-    const allErrors: ValidationErrors = {
-        ...detailsErrors,
-        ...checkpointsErrors,
-    };
-    
-    setErrors(allErrors);
-
-    if (Object.keys(detailsErrors).length > 0) {
-        setActiveTab('details');
-        return;
-    }
-    if (Object.keys(allErrors).some(key => key.startsWith('checkpoints'))) {
-        setActiveTab('checkpoints');
-        return;
-    }
-
     const finalFeature: Feature = {
-      id: initialData?.id || crypto.randomUUID(),
       ...state,
+      id: initialData?.id || crypto.randomUUID(),
+      status: 'Published', // Let's assume saving always publishes for simplicity
+      enabled: initialData?.enabled ?? true,
       packageDetails: {
           ...state.packageDetails,
-          price: Number(state.packageDetails.price)
-      },
-      status: initialData?.status || 'Draft',
-      enabled: initialData?.enabled || false,
+          price: Number(state.packageDetails.price) // ensure price is number
+      }
     };
     onSave(finalFeature);
   };
 
-  const tabs: { id: Tab; name: string }[] = [
-    { id: 'details', name: 'Details' },
-    { id: 'checkpoints', name: 'Checkpoints' },
-  ];
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'details':
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
         return <PackageDetailsStep details={state} dispatch={dispatch} errors={errors} />;
-      case 'checkpoints':
+      case 2:
         return <CheckpointsStep checkpoints={state.checkpoints || []} dispatch={dispatch} errors={errors} />;
+      case 3:
+        return <ReviewStep featureData={state} />;
       default:
         return null;
     }
@@ -160,45 +167,34 @@ const CreateFeatureWizard: React.FC<CreateFeatureWizardProps> = ({ onCancel, onS
 
   return (
     <div className="p-8 text-white max-w-4xl mx-auto">
-      <div className="flex justify-between items-start mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">{initialData ? 'Edit' : 'Create New'} Package Plan</h1>
-          <p className="text-q-gray-400">Fill in the details below to create a new package.</p>
+        <div className="flex justify-between items-center mb-12">
+            <div>
+                <h1 className="text-2xl font-bold">{initialData ? 'Edit Package Plan' : 'Create New Package Plan'}</h1>
+                <p className="text-q-gray-400">{initialData ? 'Update the details for your scoring package.' : 'Fill in the details to create a new scoring package.'}</p>
+            </div>
+            <StepIndicator currentStep={currentStep} />
         </div>
-      </div>
 
-      <div className="border-b border-q-gray-700">
-        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none
-                ${activeTab === tab.id
-                  ? 'border-q-green text-q-green'
-                  : 'border-transparent text-q-gray-400 hover:text-q-gray-200 hover:border-q-gray-500'}`
-              }
-            >
-              {tab.name}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      <div>
-        {renderTabContent()}
-      </div>
-
-      <div className="mt-12 pt-6 border-t border-q-gray-700 flex justify-end items-center space-x-4">
-        <Button variant="secondary" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button onClick={handleSave}>
-          {initialData ? 'Update Plan' : 'Create Plan'}
-        </Button>
-      </div>
+        <div>{renderStepContent()}</div>
+      
+        <div className="mt-12 pt-6 border-t border-q-gray-700 flex justify-between items-center">
+            <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+            <div className="flex items-center space-x-4">
+                {currentStep > 1 && (
+                    <Button variant="secondary" onClick={handleBack}>Back</Button>
+                )}
+                {currentStep < 3 && (
+                    <Button onClick={handleNext}>Next</Button>
+                )}
+                {currentStep === 3 && (
+                    <Button onClick={handleSave}>
+                        {initialData ? 'Update Package Plan' : 'Create Package Plan'}
+                    </Button>
+                )}
+            </div>
+        </div>
     </div>
   );
 };
 
-export default CreateFeatureWizard;
+export default CreatePackagePlanForm;
