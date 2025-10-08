@@ -15,6 +15,8 @@ const CheckpointsStep: React.FC<CheckpointsStepProps> = ({ checkpoints, dispatch
     dispatch({ type: 'ADD_CHECKPOINT' });
   };
 
+  const generalCheckpointError = errors.checkpointsError;
+
   return (
     <div className="space-y-8 mt-6">
       {checkpoints.length > 0 ? (
@@ -30,12 +32,15 @@ const CheckpointsStep: React.FC<CheckpointsStepProps> = ({ checkpoints, dispatch
           ))}
         </div>
       ) : (
-        <div className="text-center py-16 border-2 border-dashed border-q-gray-700 rounded-lg flex flex-col items-center justify-center">
+        <div className={`text-center py-16 border-2 border-dashed ${generalCheckpointError ? 'border-red-500' : 'border-q-gray-700'} rounded-lg flex flex-col items-center justify-center transition-colors`}>
             <ScenariosIcon className="w-12 h-12 text-q-gray-600 mb-4" />
             <h3 className="text-lg font-medium text-q-gray-400">No Checkpoints Defined</h3>
             <p className="text-sm text-q-gray-500 mt-1 max-w-xs mx-auto">
                 Click the button below to add your first evaluation checkpoint for this package plan.
             </p>
+            {generalCheckpointError && (
+              <p className="mt-4 text-sm text-red-500">{generalCheckpointError}</p>
+            )}
         </div>
       )}
 

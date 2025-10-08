@@ -74,7 +74,8 @@ const CreateFeatureWizard: React.FC<CreateFeatureWizardProps> = ({ onCancel, onS
     let hasCpError = false;
 
     if (!state.checkpoints || state.checkpoints.length === 0) {
-      return {}; // No checkpoints, no errors
+      newErrors.checkpointsError = 'At least one checkpoint is required.';
+      return newErrors;
     }
 
     state.checkpoints?.forEach((cp: Checkpoint) => {
@@ -116,14 +117,14 @@ const CreateFeatureWizard: React.FC<CreateFeatureWizardProps> = ({ onCancel, onS
         ...detailsErrors,
         ...checkpointsErrors,
     };
-
+    
     setErrors(allErrors);
 
     if (Object.keys(detailsErrors).length > 0) {
         setActiveTab('details');
         return;
     }
-    if (Object.keys(checkpointsErrors).length > 0) {
+    if (Object.keys(allErrors).some(key => key.startsWith('checkpoints'))) {
         setActiveTab('checkpoints');
         return;
     }

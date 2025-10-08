@@ -56,4 +56,5 @@ export interface ValidationErrors {
       veryBad?: string;
     };
   };
+  checkpointsError?: string;
 }
