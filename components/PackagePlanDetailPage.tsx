@@ -10,7 +10,7 @@ interface PackagePlanDetailPageProps {
 const PackagePlanDetailPage: React.FC<PackagePlanDetailPageProps> = ({ feature, onBack }) => {
   return (
     <div className="p-8 text-white max-w-5xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-8">
         <Button variant="secondary" onClick={onBack}>
           &larr; Back to List
         </Button>
@@ -18,15 +18,18 @@ const PackagePlanDetailPage: React.FC<PackagePlanDetailPageProps> = ({ feature, 
             Preview Mode
         </div>
       </div>
-
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">{feature.name}</h1>
-        <p className="text-q-gray-400 mt-1">{feature.description}</p>
-      </div>
-
+      
       <div className="space-y-8">
-        {/* Redesigned Package Details Card */}
+        {/* Package Details Card */}
         <div className="bg-q-gray-800 border border-q-gray-700 rounded-lg p-8">
+            {/* Package Name and Description */}
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold">{feature.name}</h1>
+                <p className="text-q-gray-400 mt-1 max-w-3xl">{feature.description}</p>
+            </div>
+            <hr className="border-q-gray-700 mb-8" />
+
+            {/* Other Details */}
             <div className="grid grid-cols-1 md:grid-cols-6 gap-x-8 gap-y-8">
                 <div className="md:col-span-2">
                     <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Target Market</h3>
