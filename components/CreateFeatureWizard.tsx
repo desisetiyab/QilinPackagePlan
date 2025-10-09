@@ -41,17 +41,17 @@ const CreatePackagePlanForm: React.FC<CreatePackagePlanFormProps> = ({ onCancel,
 
 
     const pdErrors: ValidationErrors['packageDetails'] = {};
-    if (!state.packageDetails.targetMarket.trim()) pdErrors.targetMarket = 'Target market is required.';
-     if (state.packageDetails.targetMarket.trim().length < 10 || state.packageDetails.targetMarket.trim().length > 200) {
-        pdErrors.targetMarket = 'Must be between 10 and 200 characters.';
+    if (state.packageDetails.targetMarket.length === 0) {
+      pdErrors.targetMarket = 'At least one target market must be selected.';
     }
 
     if (state.packageDetails.price === '' || isNaN(Number(state.packageDetails.price)) || Number(state.packageDetails.price) < 0) {
       pdErrors.price = 'A valid, non-negative price is required.';
     }
-    if (!state.packageDetails.duration.trim()) pdErrors.duration = 'Duration is required.';
-     if (state.packageDetails.duration.trim().length < 3 || state.packageDetails.duration.trim().length > 50) {
-        pdErrors.duration = 'Must be between 3 and 50 characters.';
+    if (state.packageDetails.durationValue === '' || isNaN(Number(state.packageDetails.durationValue)) || Number(state.packageDetails.durationValue) <= 0) {
+      pdErrors.duration = 'A valid duration is required.';
+    } else if (Number(state.packageDetails.durationValue) > 999) {
+      pdErrors.duration = 'Duration must be 999 or less.';
     }
 
     if (!state.packageDetails.benefits.trim()) pdErrors.benefits = 'Benefits are required.';
@@ -146,7 +146,8 @@ const CreatePackagePlanForm: React.FC<CreatePackagePlanFormProps> = ({ onCancel,
       enabled: initialData?.enabled ?? true,
       packageDetails: {
           ...state.packageDetails,
-          price: Number(state.packageDetails.price) // ensure price is number
+          price: Number(state.packageDetails.price), // ensure price is number
+          durationValue: Number(state.packageDetails.durationValue),
       }
     };
     onSave(finalFeature);

@@ -13,10 +13,11 @@ type Action =
   | { type: 'RESET_STATE' };
 
 const initialPackageDetails: PackageDetails = {
-  targetMarket: '',
+  targetMarket: [],
   price: '',
   currency: 'MYR',
-  duration: '',
+  durationValue: '',
+  durationUnit: 'day',
   benefits: '',
   sellingPoints: '',
 };

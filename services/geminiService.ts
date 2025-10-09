@@ -7,6 +7,9 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 function buildPrompt(featureData: Omit<Feature, 'id' | 'status' | 'enabled'>): string {
   const { name, description, packageDetails, checkpoints } = featureData;
+  const { durationValue, durationUnit } = packageDetails;
+  const durationText = `${durationValue} ${durationUnit}${durationValue !== 1 ? 's' : ''}`;
+
 
   let prompt = `You are an AI assistant tasked with creating a detailed scoring prompt for evaluating customer service or sales interactions. Based on the following structured data, generate a single, comprehensive "Scoring Prompt". This prompt will be used by another AI to analyze and score a conversation transcript.
 
@@ -19,11 +22,11 @@ function buildPrompt(featureData: Omit<Feature, 'id' | 'status' | 'enabled'>): s
 The agent is selling or discussing the following package. The evaluation AI must understand this context.
 
 - **Package Name:** ${name}
-- **Target Market:** ${packageDetails?.targetMarket}
-- **Price and Duration:** ${packageDetails?.price} ${packageDetails?.currency} for ${packageDetails?.duration}
+- **Target Market:** ${packageDetails?.targetMarket.join(', ')}
+- **Price and Duration:** ${packageDetails?.price} ${packageDetails?.currency} for ${durationText}
 - **Benefits:**
 ${packageDetails?.benefits.split('\n').filter(b => b.trim() !== '').map(b => `  - ${b.trim()}`).join('\n')}
-- **Key Selling Points to Emphasize:**
+- **Key Selling Points to Emprehasize:**
 ${packageDetails?.sellingPoints.split('\n').filter(sp => sp.trim() !== '').map(sp => `  - ${sp.trim()}`).join('\n')}
 
 ---

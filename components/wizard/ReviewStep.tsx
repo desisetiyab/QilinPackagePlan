@@ -6,6 +6,9 @@ interface ReviewStepProps {
 }
 
 const ReviewStep: React.FC<ReviewStepProps> = ({ featureData }) => {
+  const { durationValue, durationUnit } = featureData.packageDetails;
+  const durationText = `${durationValue} ${durationUnit}${durationValue !== 1 ? 's' : ''}`;
+
   return (
     <div className="space-y-8 mt-6">
       {/* Card 1: Package Plan Details */}
@@ -16,7 +19,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ featureData }) => {
             {/* Target Market, Price, Duration */}
             <div className="md:col-span-2">
                 <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Target Market</h3>
-                <p className="mt-2 text-q-gray-200">{featureData.packageDetails.targetMarket}</p>
+                <p className="mt-2 text-q-gray-200">{featureData.packageDetails.targetMarket.join(', ')}</p>
             </div>
             <div className="md:col-span-2">
                 <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Price</h3>
@@ -24,7 +27,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ featureData }) => {
             </div>
             <div className="md:col-span-2">
                 <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Duration</h3>
-                <p className="mt-2 text-q-gray-200">{featureData.packageDetails.duration}</p>
+                <p className="mt-2 text-q-gray-200">{durationText}</p>
             </div>
 
             <div className="md:col-span-6"><hr className="border-q-gray-700" /></div>

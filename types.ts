@@ -12,10 +12,11 @@ export interface Checkpoint {
 }
 
 export interface PackageDetails {
-  targetMarket: string;
+  targetMarket: string[];
   price: number | ''; // Allow empty string for input state
   currency: string;
-  duration: string;
+  durationValue: number | '';
+  durationUnit: 'day' | 'month' | 'year';
   benefits: string;
   sellingPoints: string;
 }

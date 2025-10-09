@@ -1,3 +1,4 @@
+
 // Fix: Removed invalid CDATA wrapper causing syntax error.
 import React from 'react';
 import type { Feature } from '../types';
@@ -88,35 +89,39 @@ const FeatureListPage: React.FC<FeatureListPageProps> = ({
               <th scope="col" className="px-6 py-3">Package Name</th>
               <th scope="col" className="px-6 py-3">Description</th>
               <th scope="col" className="px-6 py-3">Price</th>
-              <th scope="col" className="px-6 py-3">Duration</th>
+              <th scope="col" className="px-6 py-3 w-24">Duration</th>
               <th scope="col" className="px-6 py-3">Status</th>
               <th scope="col" className="px-6 py-3 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {features.length > 0 ? (
-              features.map((feature) => (
-                <tr key={feature.id} className="border-b border-q-gray-700 hover:bg-q-gray-700/30">
-                  <th scope="row" className="px-6 py-4 font-medium text-white whitespace-nowrap cursor-pointer" onClick={() => onView(feature)}>
-                    {feature.name}
-                  </th>
-                  <td className="px-6 py-4 max-w-sm truncate cursor-pointer" onClick={() => onView(feature)}>{feature.description}</td>
-                  <td className="px-6 py-4 cursor-pointer" onClick={() => onView(feature)}>{`${Number(feature.packageDetails.price).toLocaleString('en-US')} ${feature.packageDetails.currency}`}</td>
-                  <td className="px-6 py-4 cursor-pointer" onClick={() => onView(feature)}>{feature.packageDetails.duration}</td>
-                  <td className="px-6 py-4">
-                    <ToggleSwitch
-                      checked={feature.enabled}
-                      onChange={() => onToggleEnable(feature.id)}
-                      id={`toggle-${feature.id}`}
-                    />
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <Button variant="secondary" size="sm" onClick={() => onEdit(feature.id)}>
-                        Edit Plan
-                    </Button>
-                  </td>
-                </tr>
-              ))
+              features.map((feature) => {
+                const { durationValue, durationUnit } = feature.packageDetails;
+                const durationText = `${durationValue} ${durationUnit}${durationValue !== 1 ? 's' : ''}`;
+                return (
+                  <tr key={feature.id} className="border-b border-q-gray-700 hover:bg-q-gray-700/30">
+                    <th scope="row" className="px-6 py-4 font-medium text-white whitespace-nowrap cursor-pointer" onClick={() => onView(feature)}>
+                      {feature.name}
+                    </th>
+                    <td className="px-6 py-4 max-w-sm truncate cursor-pointer" onClick={() => onView(feature)}>{feature.description}</td>
+                    <td className="px-6 py-4 cursor-pointer" onClick={() => onView(feature)}>{`${Number(feature.packageDetails.price).toLocaleString('en-US')} ${feature.packageDetails.currency}`}</td>
+                    <td className="px-6 py-4 cursor-pointer" onClick={() => onView(feature)}>{durationText}</td>
+                    <td className="px-6 py-4">
+                      <ToggleSwitch
+                        checked={feature.enabled}
+                        onChange={() => onToggleEnable(feature.id)}
+                        id={`toggle-${feature.id}`}
+                      />
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <Button variant="secondary" size="sm" onClick={() => onEdit(feature.id)}>
+                          Edit Plan
+                      </Button>
+                    </td>
+                  </tr>
+                )
+              })
             ) : (
               <tr>
                 <td colSpan={6} className="text-center py-12 text-q-gray-500">

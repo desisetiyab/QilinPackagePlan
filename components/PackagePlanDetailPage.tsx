@@ -8,6 +8,9 @@ interface PackagePlanDetailPageProps {
 }
 
 const PackagePlanDetailPage: React.FC<PackagePlanDetailPageProps> = ({ feature, onBack }) => {
+  const { durationValue, durationUnit } = feature.packageDetails;
+  const durationText = `${durationValue} ${durationUnit}${durationValue !== 1 ? 's' : ''}`;
+
   return (
     <div className="p-8 text-white max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-8">
@@ -28,7 +31,7 @@ const PackagePlanDetailPage: React.FC<PackagePlanDetailPageProps> = ({ feature, 
                 {/* Target Market, Price, Duration */}
                 <div className="md:col-span-2">
                     <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Target Market</h3>
-                    <p className="mt-2 text-q-gray-200">{feature.packageDetails.targetMarket}</p>
+                    <p className="mt-2 text-q-gray-200">{feature.packageDetails.targetMarket.join(', ')}</p>
                 </div>
                 <div className="md:col-span-2">
                     <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Price</h3>
@@ -36,7 +39,7 @@ const PackagePlanDetailPage: React.FC<PackagePlanDetailPageProps> = ({ feature, 
                 </div>
                 <div className="md:col-span-2">
                     <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Duration</h3>
-                    <p className="mt-2 text-q-gray-200">{feature.packageDetails.duration}</p>
+                    <p className="mt-2 text-q-gray-200">{durationText}</p>
                 </div>
 
                 <div className="md:col-span-6"><hr className="border-q-gray-700" /></div>
