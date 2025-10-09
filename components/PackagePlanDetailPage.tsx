@@ -22,15 +22,10 @@ const PackagePlanDetailPage: React.FC<PackagePlanDetailPageProps> = ({ feature, 
       <div className="space-y-8">
         {/* Package Details Card */}
         <div className="bg-q-gray-800 border border-q-gray-700 rounded-lg p-8">
-            {/* Package Name and Description */}
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold">{feature.name}</h1>
-                <p className="text-q-gray-400 mt-1 max-w-3xl">{feature.description}</p>
-            </div>
-            <hr className="border-q-gray-700 mb-8" />
-
-            {/* Other Details */}
+            <h2 className="text-xl font-bold mb-6">Package Plan Details</h2>
+            {/* Details Grid */}
             <div className="grid grid-cols-1 md:grid-cols-6 gap-x-8 gap-y-8">
+                {/* Target Market, Price, Duration */}
                 <div className="md:col-span-2">
                     <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Target Market</h3>
                     <p className="mt-2 text-q-gray-200">{feature.packageDetails.targetMarket}</p>
@@ -46,6 +41,19 @@ const PackagePlanDetailPage: React.FC<PackagePlanDetailPageProps> = ({ feature, 
 
                 <div className="md:col-span-6"><hr className="border-q-gray-700" /></div>
 
+                {/* Package Name and Description */}
+                <div className="md:col-span-3">
+                    <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Package Name</h3>
+                    <p className="mt-2 text-q-gray-200">{feature.name}</p>
+                </div>
+                <div className="md:col-span-3">
+                    <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Description</h3>
+                    <p className="mt-2 text-q-gray-300 whitespace-pre-wrap">{feature.description}</p>
+                </div>
+
+                <div className="md:col-span-6"><hr className="border-q-gray-700" /></div>
+
+                {/* Benefits and Key Selling Points */}
                 <div className="md:col-span-3">
                     <h3 className="text-sm font-semibold text-q-gray-500 uppercase tracking-wider">Benefits</h3>
                     <p className="mt-2 text-q-gray-300 whitespace-pre-wrap">{feature.packageDetails.benefits}</p>

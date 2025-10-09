@@ -92,10 +92,14 @@ type View =
   | { type: 'edit', featureId: string }
   | { type: 'detail', feature: Feature };
 
+type FilterStatus = 'all' | 'enabled' | 'disabled';
+
 
 const FeatureManagementPage: React.FC = () => {
   const [features, setFeatures] = useState<Feature[]>(initialFeatures);
   const [view, setView] = useState<View>({ type: 'list' });
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const handleCreateNew = () => {
     setView({ type: 'create' });
@@ -129,6 +133,16 @@ const FeatureManagementPage: React.FC = () => {
     setView({ type: 'list' });
   };
 
+  const filteredFeatures = features.filter(feature => {
+    const statusMatch = filterStatus === 'all' || 
+                       (filterStatus === 'enabled' && feature.enabled) || 
+                       (filterStatus === 'disabled' && !feature.enabled);
+
+    const searchMatch = searchTerm === '' || feature.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return statusMatch && searchMatch;
+  });
+
   const renderContent = () => {
     switch (view.type) {
       case 'create':
@@ -144,7 +158,17 @@ const FeatureManagementPage: React.FC = () => {
         return <PackagePlanDetailPage feature={view.feature} onBack={() => setView({ type: 'list' })} />;
       case 'list':
       default:
-        return <FeatureListPage features={features} onCreateNew={handleCreateNew} onEdit={handleStartEdit} onView={handleViewDetail} onToggleEnable={handleToggleEnable} />;
+        return <FeatureListPage 
+            features={filteredFeatures} 
+            onCreateNew={handleCreateNew} 
+            onEdit={handleStartEdit} 
+            onView={handleViewDetail} 
+            onToggleEnable={handleToggleEnable}
+            filterStatus={filterStatus}
+            onFilterChange={setFilterStatus}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+        />;
     }
   }
 
