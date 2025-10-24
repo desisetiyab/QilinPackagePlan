@@ -10,7 +10,8 @@ interface StepIndicatorProps {
 const steps = [
   { id: 1, name: 'Details', description: 'Package & Feature Details' },
   { id: 2, name: 'Checkpoints', description: 'Evaluation Criteria' },
-  { id: 3, name: 'Preview', description: 'Finalize package plan' },
+  { id: 3, name: 'AI Refinement', description: 'Enhance with AI' },
+  { id: 4, name: 'Review', description: 'Finalize package plan' },
 ];
 
 const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {

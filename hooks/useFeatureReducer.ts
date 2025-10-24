@@ -10,6 +10,7 @@ type Action =
   | { type: 'REMOVE_CHECKPOINT'; payload: { id: string } }
   | { type: 'UPDATE_CHECKPOINT'; payload: { id: string; field: keyof Omit<Checkpoint, 'id' | 'criteria'>; value: any } }
   | { type: 'UPDATE_CRITERIA'; payload: { id: string; field: keyof Criteria; value: string } }
+  | { type: 'UPDATE_REFINEMENTS'; payload: { refinedDescription: string; refinedBenefits: string; refinedSellingPoints: string; } }
   | { type: 'RESET_STATE' };
 
 const initialPackageDetails: PackageDetails = {
@@ -27,6 +28,9 @@ const initialState: ReducerState = {
   description: '',
   packageDetails: initialPackageDetails,
   checkpoints: [],
+  refinedDescription: '',
+  refinedBenefits: '',
+  refinedSellingPoints: '',
 };
 
 
@@ -76,6 +80,11 @@ function featureReducer(state: ReducerState, action: Action): ReducerState {
                     ? { ...cp, criteria: { ...cp.criteria, [action.payload.field]: action.payload.value } }
                     : cp
             )
+        };
+    case 'UPDATE_REFINEMENTS':
+        return {
+            ...state,
+            ...action.payload,
         };
     case 'RESET_STATE':
         return JSON.parse(JSON.stringify(initialState)); // Deep copy to avoid reference issues

@@ -29,9 +29,12 @@ export interface Feature {
   enabled: boolean;
   packageDetails: PackageDetails;
   checkpoints: Checkpoint[];
+  refinedDescription?: string;
+  refinedBenefits?: string;
+  refinedSellingPoints?: string;
 }
 
-export type Step = 1 | 2 | 3;
+export type Step = 1 | 2 | 3 | 4;
 
 // For form validation
 export interface ValidationErrors {

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type { Feature, ValidationErrors, Step } from '../types';
 import { useFeatureReducer } from '../hooks/useFeatureReducer';
+import { refinePackageDetails } from '../services/geminiService';
 import StepIndicator from './wizard/StepIndicator';
 import PackageDetailsStep from './wizard/PackageDetailsStep';
 import CheckpointsStep from './wizard/CheckpointsStep';
+import AIRefinementStep from './wizard/AIRefinementStep';
 import ReviewStep from './wizard/ReviewStep';
 import Button from './ui/Button';
 
@@ -17,6 +19,10 @@ const CreatePackagePlanForm: React.FC<CreatePackagePlanFormProps> = ({ onCancel,
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [state, dispatch] = useFeatureReducer(initialData);
   const [errors, setErrors] = useState<ValidationErrors>({});
+  
+  const [isRefining, setIsRefining] = useState(false);
+  const [refinementError, setRefinementError] = useState<string | null>(null);
+  const [hasRefined, setHasRefined] = useState(false);
 
   useEffect(() => {
     // When the user navigates to the Checkpoints step, automatically add the first
@@ -118,6 +124,20 @@ const CreatePackagePlanForm: React.FC<CreatePackagePlanFormProps> = ({ onCancel,
     return !hasError;
   };
 
+  const handleRefine = async () => {
+    setIsRefining(true);
+    setRefinementError(null);
+    try {
+        const refinedData = await refinePackageDetails(state);
+        dispatch({ type: 'UPDATE_REFINEMENTS', payload: refinedData });
+        setHasRefined(true);
+    } catch (error) {
+        console.error(error);
+        setRefinementError('Failed to refine content. Please check the console for details and try again.');
+    } finally {
+        setIsRefining(false);
+    }
+  };
 
   const handleNext = () => {
     let isValid = false;
@@ -130,7 +150,10 @@ const CreatePackagePlanForm: React.FC<CreatePackagePlanFormProps> = ({ onCancel,
     }
 
     if (isValid) {
-      setCurrentStep(prev => (prev < 3 ? prev + 1 : prev) as Step);
+      if (currentStep === 2 && !hasRefined) {
+        handleRefine();
+      }
+      setCurrentStep(prev => (prev < 4 ? prev + 1 : prev) as Step);
     }
   };
 
@@ -160,6 +183,14 @@ const CreatePackagePlanForm: React.FC<CreatePackagePlanFormProps> = ({ onCancel,
       case 2:
         return <CheckpointsStep checkpoints={state.checkpoints || []} dispatch={dispatch} errors={errors} />;
       case 3:
+        return <AIRefinementStep 
+            details={state} 
+            dispatch={dispatch} 
+            isRefining={isRefining} 
+            onRefineAgain={handleRefine}
+            error={refinementError}
+        />;
+      case 4:
         return <ReviewStep featureData={state} />;
       default:
         return null;
@@ -184,10 +215,10 @@ const CreatePackagePlanForm: React.FC<CreatePackagePlanFormProps> = ({ onCancel,
                 {currentStep > 1 && (
                     <Button variant="secondary" onClick={handleBack}>Back</Button>
                 )}
-                {currentStep < 3 && (
+                {currentStep < 4 && (
                     <Button onClick={handleNext}>Next</Button>
                 )}
-                {currentStep === 3 && (
+                {currentStep === 4 && (
                     <Button onClick={handleSave}>
                         {initialData ? 'Update Package Plan' : 'Create Package Plan'}
                     </Button>
